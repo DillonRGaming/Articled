@@ -13,6 +13,8 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body class="dark-theme">
+    <div class="swipe-indicator left" id="leftSwipeIndicator"><i class="fas fa-chevron-right"></i></div>
+    <div class="swipe-indicator right" id="rightSwipeIndicator"><i class="fas fa-chevron-left"></i></div>
     <div class="app-container">
         <aside class="sidebar" id="sidebar">
             <div class="search-container">
@@ -30,7 +32,7 @@
         </aside>
 
         <main class="content-wrapper">
-            <div class="content-area" id="contentArea">
+            <div class="content-area" id="contentArea" data-file="">
             </div>
             <div class="outline-sidebar" id="outlineSidebar">
                 <h4 class="outline-heading">On this page</h4>

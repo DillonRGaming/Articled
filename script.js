@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const darkModeToggle = document.getElementById('darkModeToggle');
   const sidebar = document.getElementById('sidebar');
+  const leftSwipeIndicator = document.getElementById('leftSwipeIndicator');
+  const rightSwipeIndicator = document.getElementById('rightSwipeIndicator');
 
   let allContentData = {};
   let folderStructure = [];
@@ -13,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeAudio = null;
   let activeIntervals = [];
   let currentView = null; // For view filtering
+
+  // Touch swipe variables
+  let touchStartX = 0;
+  let touchEndX = 0;
+  const swipeThreshold = 50; // Minimum distance for a swipe
 
   // Marked config (GFM with soft line breaks)
   marked.setOptions({
@@ -566,9 +573,11 @@ document.addEventListener('DOMContentLoaded', () => {
     outlineList.innerHTML = '';
     if (headings.length === 0) {
       outlineSidebar.style.display = 'none';
+      document.body.classList.remove('outline-sidebar-open');
       return;
     }
     outlineSidebar.style.display = 'block';
+    document.body.classList.add('outline-sidebar-open'); // Indicate outline sidebar is open
 
     // Ensure unique IDs
     const seen = new Map();
@@ -578,8 +587,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return count === 0 ? base : `${base}-${count + 1}`;
     }
 
-    headings.forEach(heading => {
-      let baseId = sanitizeId(heading.textContent || 'section');
+    headings.forEach((heading, index) => {
+      let baseId = sanitizeId(heading.textContent || `section-${index}`);
       const id = uniqueId(baseId);
       heading.id = id;
       const listItem = document.createElement('li');
@@ -604,8 +613,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     outlineLinks.forEach(link => link.classList.remove('active'));
-    if (activeLink) activeLink.classList.add('active');
-    else if (outlineLinks.length > 0) outlineLinks[0].classList.add('active');
+    if (activeLink) {
+      activeLink.classList.add('active');
+    } else if (outlineLinks.length > 0) {
+      outlineLinks[0].classList.add('active');
+    }
   }
 
   function updateActiveSidebarItem() {
@@ -618,26 +630,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function handleHashChange() {
-    let id = window.location.hash.substring(1);
-    
-    // Check for view parameter
     const urlParams = new URLSearchParams(window.location.search);
     const viewParam = urlParams.get('view');
+
+    // Only re-render sidebar if view parameter has changed
     if (viewParam !== currentView) {
-      currentView = viewParam;
-      // Re-render sidebar with new view filter
+      currentView = viewParam; // Update currentView
       mainNav.innerHTML = '';
       renderSidebar(folderStructure, allContentData, mainNav);
       updateActiveSidebarItem();
     }
-    
+
+    let id = window.location.hash.substring(1);
+
+    // If no specific file is requested, try to load the first visible file
     if (!id) {
       const firstFile = getVisibleFileIds(folderStructure)[0];
-      id = firstFile ? fileIdFromFilename(firstFile) : 'demo';
-      if (id) { window.location.hash = `#${id}`; return; }
+      if (firstFile) {
+        id = fileIdFromFilename(firstFile);
+        window.location.hash = `#${id}`; // Update hash to reflect the loaded file
+        return; // Exit to let the hashchange event re-trigger with the new hash
+      } else {
+        contentArea.innerHTML = '<div class="loading">No content available for this view.</div>';
+        outlineSidebar.style.display = 'none';
+        document.body.classList.remove('outline-sidebar-open');
+        return;
+      }
     }
+
     await loadContent(id);
     updateActiveSidebarItem();
+    // Ensure scroll listener is only added once
     contentArea.removeEventListener('scroll', updateActiveOutlineItem);
     contentArea.addEventListener('scroll', updateActiveOutlineItem);
   }
@@ -874,8 +897,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function getVisibleFileIds(structure) {
     let ids = [];
     for (const item of structure || []) {
-      if (typeof item === 'string' && shouldShowItem(item)) ids.push(item);
-      else if (item && item.children && shouldShowItem(item)) ids = ids.concat(getVisibleFileIds(item.children));
+      if (typeof item === 'string' && shouldShowItem(item)) {
+        const fileId = fileIdFromFilename(item);
+        if (allContentData[fileId]) { // Only add if content data exists
+          ids.push(item);
+        }
+      } else if (item && item.children && shouldShowItem(item)) {
+        ids = ids.concat(getVisibleFileIds(item.children));
+      }
     }
     return ids;
   }
@@ -885,11 +914,44 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Check for view parameter in URL
     const urlParams = new URLSearchParams(window.location.search);
-    currentView = urlParams.get('view');
-    
+    const requestedView = urlParams.get('view');
+
     folderStructure = await fetchJson('./folders.json');
-    if (!folderStructure) return;
+    if (!folderStructure) {
+      contentArea.innerHTML = '<div class="loading">Error loading folder structure.</div>';
+      return;
+    }
     if (!Array.isArray(folderStructure)) folderStructure = [folderStructure];
+
+    // Fetch all content data first
+    const fileIdsToFetch = getFileIds(folderStructure);
+    const fetchPromises = fileIdsToFetch.map(filename => {
+      const id = fileIdFromFilename(filename);
+      return fetchJson(`./files/${filename}`).then(data => {
+        if (data) allContentData[id] = { id, ...data };
+      });
+    });
+    await Promise.all(fetchPromises);
+
+    // Validate and set currentView
+    const availableViews = new Set();
+    (function collectViews(structure) {
+      (structure || []).forEach(item => {
+        if (typeof item === 'string') {
+          const itemData = allContentData[fileIdFromFilename(item)];
+          if (itemData && itemData.views) itemData.views.forEach(view => availableViews.add(view));
+        } else if (item && item.type === 'folder' && item.views) {
+          item.views.forEach(view => availableViews.add(view));
+        }
+        if (item && item.children) collectViews(item.children);
+      });
+    })(folderStructure);
+
+    if (requestedView && availableViews.has(requestedView)) {
+      currentView = requestedView;
+    } else {
+      currentView = null; // If view is invalid or not present, clear it to show all content
+    }
 
     openFolders = {};
     (function findOpenFolders(structure) {
@@ -901,14 +963,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     })(folderStructure);
 
-    const fetchPromises = getFileIds(folderStructure).map(filename => {
-      const id = fileIdFromFilename(filename);
-      return fetchJson(`./files/${filename}`).then(data => {
-        if (data) allContentData[id] = { id, ...data };
-      });
-    });
-
-    await Promise.all(fetchPromises);
     mainNav.innerHTML = '';
     renderSidebar(folderStructure, allContentData, mainNav);
     handleHashChange();
@@ -920,5 +974,121 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.addEventListener('hashchange', handleHashChange);
+
+  // Swipe gesture handling for mobile
+  if (window.innerWidth <= 1024) {
+    document.body.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+
+    document.body.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipeGesture();
+    }, false);
+  }
+
+  // Swipe indicator click handlers
+  leftSwipeIndicator.addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-open');
+    if (document.body.classList.contains('sidebar-open')) {
+      document.body.classList.remove('outline-sidebar-open-mobile'); // Close right sidebar if left opens
+    }
+  });
+
+  rightSwipeIndicator.addEventListener('click', () => {
+    document.body.classList.toggle('outline-sidebar-open-mobile');
+    if (document.body.classList.contains('outline-sidebar-open-mobile')) {
+      document.body.classList.remove('sidebar-open'); // Close left sidebar if right opens
+    }
+  });
+
+  // Close sidebars when clicking outside on mobile
+  document.body.addEventListener('click', (e) => {
+    if (window.innerWidth <= 1024) {
+      if (document.body.classList.contains('sidebar-open') &&
+          !sidebar.contains(e.target) &&
+          !leftSwipeIndicator.contains(e.target)) {
+        document.body.classList.remove('sidebar-open');
+      }
+      if (document.body.classList.contains('outline-sidebar-open-mobile') &&
+          !outlineSidebar.contains(e.target) &&
+          !rightSwipeIndicator.contains(e.target)) {
+        document.body.classList.remove('outline-sidebar-open-mobile');
+      }
+    }
+  });
+
+  // Handle window resize to remove sidebars on desktop
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1024) {
+      document.body.classList.remove('sidebar-open', 'outline-sidebar-open-mobile');
+    } else {
+      // Re-attach touch listeners if they were removed or not initially attached
+      if (!document.body.hasAttribute('data-touch-listeners-attached')) {
+        document.body.setAttribute('data-touch-listeners-attached', 'true');
+        document.body.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.body.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipeGesture();
+        }, false);
+      }
+    }
+  });
+
+  // Function to handle swipe gestures
+  function handleSwipeGesture() {
+    const deltaX = touchEndX - touchStartX;
+    const absDeltaX = Math.abs(deltaX);
+
+    // Only consider significant horizontal swipes
+    if (absDeltaX > swipeThreshold) {
+      if (deltaX > 0) {
+        // Swipe right - open left sidebar or close right sidebar
+        if (document.body.classList.contains('outline-sidebar-open-mobile')) {
+          document.body.classList.remove('outline-sidebar-open-mobile');
+        } else if (!document.body.classList.contains('sidebar-open')) {
+          document.body.classList.add('sidebar-open');
+        }
+      } else {
+        // Swipe left - open right sidebar or close left sidebar
+        if (document.body.classList.contains('sidebar-open')) {
+          document.body.classList.remove('sidebar-open');
+        } else if (!document.body.classList.contains('outline-sidebar-open-mobile')) {
+          document.body.classList.add('outline-sidebar-open-mobile');
+        }
+      }
+    }
+  }
+
+  // Update section indicator and outline sidebar visibility on resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1024) {
+      document.body.classList.remove('sidebar-open'); // Ensure mobile left sidebar is closed on desktop
+      document.body.classList.remove('outline-sidebar-open-mobile'); // Ensure mobile right sidebar is closed on desktop
+      if (outlineList.children.length > 0) {
+        document.body.classList.add('outline-sidebar-open'); // Show desktop outline if content exists
+      } else {
+        document.body.classList.remove('outline-sidebar-open'); // Hide desktop outline if no content
+      }
+    } else {
+      document.body.classList.remove('outline-sidebar-open'); // Always remove desktop outline class on mobile
+    }
+  });
+
+  // Initial check for outline sidebar visibility on load and content changes
+  const observer = new MutationObserver(() => {
+    if (window.innerWidth > 1024) {
+      if (outlineList.children.length > 0) {
+        document.body.classList.add('outline-sidebar-open');
+      } else {
+        document.body.classList.remove('outline-sidebar-open');
+      }
+    }
+  });
+  observer.observe(outlineList, { childList: true }); // Observe changes to outlineList
+
   initialize();
 });
