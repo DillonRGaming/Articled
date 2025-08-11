@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Touch swipe variables
   let touchStartX = 0;
   let touchEndX = 0;
-  const swipeThreshold = 50; // Minimum distance for a swipe
+  const swipeThreshold = 80; // Minimum distance for a swipe (increased for less sensitivity)
 
   // Marked config (GFM with soft line breaks)
   marked.setOptions({
@@ -387,8 +387,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const tabPanels = document.createElement('div');
       tabPanels.className = 'tab-panels';
       panels.forEach((panel, index) => {
-        let name = panel.dataset.name || `Tab ${index + 1}`;
-        name = name.replace(/\(fa\)([\w-]+)\(\/fa\)/g, `<i class="fas fa-$1"></i>`);
+        let name = panel.dataset.name;
+        // If name is not provided or is empty, use a default name
+        if (!name) {
+          name = `Tab ${index + 1}`;
+        } else {
+          // Process icons in the name
+          name = name.replace(/\(fa\)([\w-]+)\(\/fa\)/g, `<i class="fas fa-$1"></i>`);
+        }
 
         const button = document.createElement('button');
         button.className = 'tab-button';

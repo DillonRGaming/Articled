@@ -331,13 +331,13 @@ mark.highlight-purple { background-color: var(--highlight-purple-bg); color: var
 
 .swipe-indicator.left {
   left: 0;
-  transform: translate(-25px, -50%);
+  transform: translate(-10px, -50%);
   border-radius: 0 15px 15px 0;
 }
 
 .swipe-indicator.right {
   right: 0;
-  transform: translate(25px, -50%);
+  transform: translate(10px, -50%);
   border-radius: 15px 0 0 15px;
 }
 
