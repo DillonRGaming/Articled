@@ -1,0 +1,10 @@
+{
+  "sidebarTitle": "Product Features",
+  "fullTitle": "Amazing Product - Features & Benefits",
+  "lastEdited": "2024-01-18",
+  "views": [
+    "public",
+    "marketing"
+  ],
+  "content": "# Amazing Product Features\n\n[ANIMATE type=\"slideIn\"]\nWelcome to the future of productivity!\n[/ANIMATE]\n\n## Why Choose Us?\n\n[GRID cols=\"3\"]\n[CELL]\n### (fa)rocket(/fa) Fast\nLightning-fast performance that saves you time every day.\n[/CELL]\n\n[CELL]  \n### (fa)shield-alt(/fa) Secure\nBank-level security keeps your data safe and protected.\n[/CELL]\n\n[CELL]\n### (fa)heart(/fa) Easy\nIntuitive design that anyone can master in minutes.\n[/CELL]\n[/GRID]\n\n## Product Demo\n\n[VIDEO src=\"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"]\n[/VIDEO]\n\n## Pricing Plans\n\n[COLUMNS]\n[COLUMN]\n### Basic Plan\n- $9.99/month\n- 5 users included\n- Basic support\n- 10GB storage\n\n[LINK url=\"https://signup.example.com/basic\"]Get Started[/LINK]\n[/COLUMN]\n\n[COLUMN]\n### Pro Plan  \n- $19.99/month\n- 25 users included\n- Priority support\n- 100GB storage\n- Advanced features\n\n[LINK url=\"https://signup.example.com/pro\"]Choose Pro[/LINK]\n[/COLUMN]\n[/COLUMNS]\n\n## Customer Reviews\n\n[CAROUSEL]\n[SLIDE]\n> \"This product changed my life! I'm 10x more productive now.\"\n> \n> \u2014 Sarah Johnson, CEO\n[/SLIDE]\n\n[SLIDE]\n> \"The best investment our company has made. Highly recommended!\"\n> \n> \u2014 Mike Chen, CTO  \n[/SLIDE]\n\n[SLIDE]\n> \"Simple, powerful, and reliable. Everything we needed.\"\n> \n> \u2014 Lisa Rodriguez, Manager\n[/SLIDE]\n[/CAROUSEL]\n\n[HR]\n\n[GRADIENT from=\"#667eea\" to=\"#764ba2\"]\nReady to transform your workflow?\n[/GRADIENT]\n\n[LINK url=\"https://signup.example.com\"]Start Free Trial[/LINK]\n"
+}

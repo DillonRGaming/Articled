@@ -1,0 +1,59 @@
+[
+  {
+    "type": "folder",
+    "title": "API Documentation",
+    "views": [
+      "api",
+      "dev"
+    ],
+    "open": true,
+    "children": [
+      "api-documentation.json"
+    ]
+  },
+  {
+    "type": "folder",
+    "title": "Gaming Guides",
+    "views": [
+      "minecraft",
+      "gaming"
+    ],
+    "open": true,
+    "children": [
+      "minecraft-redstone-tutorial.json"
+    ]
+  },
+  {
+    "type": "folder",
+    "title": "Internal Resources",
+    "views": [
+      "internal",
+      "hr"
+    ],
+    "open": true,
+    "children": [
+      "internal-employee-handbook.json"
+    ]
+  },
+  {
+    "type": "folder",
+    "title": "Marketing Materials",
+    "views": [
+      "public",
+      "marketing"
+    ],
+    "open": true,
+    "children": [
+      "product-marketing.json"
+    ]
+  },
+  {
+    "type": "folder",
+    "title": "Documentation",
+    "open": true,
+    "children": [
+      "markdown-shortcodes-guide.json",
+      "comprehensive-showcase.json"
+    ]
+  }
+]
