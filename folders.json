@@ -1,24 +1,81 @@
 [
   {
     "type": "folder",
-    "title": "API Documentation",
-    "views": [
-      "api",
-      "dev"
-    ],
+    "title": "Web Development Basics",
+    "views": ["webdev", "basics"],
     "open": true,
     "children": [
-      "api-documentation.json",
       {
         "type": "folder",
-        "title": "Minecraft",
-        "views": [
-          "minecraft",
-          "gaming"
-        ],
+        "title": "HTML",
+        "views": ["html"],
         "open": true,
         "children": [
-          "minecraft-redstone-tutorial.json"
+          "html-introduction.json",
+          "html-elements.json",
+          "html-forms.json"
+        ]
+      },
+      {
+        "type": "folder",
+        "title": "CSS",
+        "views": ["css"],
+        "open": true,
+        "children": [
+          "css-introduction.json",
+          "css-selectors.json",
+          "css-layout.json"
+        ]
+      },
+      {
+        "type": "folder",
+        "title": "JavaScript",
+        "views": ["javascript"],
+        "open": true,
+        "children": [
+          "js-introduction.json",
+          "js-variables-data-types.json",
+          "js-dom-manipulation.json"
+        ]
+      }
+    ]
+  },
+  {
+    "type": "folder",
+    "title": "Python",
+    "views": ["python"],
+    "open": true,
+    "children": [
+      "python-introduction.json",
+      "python-variables-data-types.json",
+      "python-functions.json",
+      "python-classes-objects.json",
+      "python-exceptions.json",
+      "python-iterators.json",
+      "python-json.json",
+      "python-modules.json",
+      "python-file-handling.json",
+      "python-regular-expressions.json"
+    ]
+  },
+  {
+    "type": "folder",
+    "title": "Carbrix",
+    "views": ["carbrix", "game", "physics", "vehicle"],
+    "open": true,
+    "children": [
+      "files/carbrix-readme.json",
+      {
+        "type": "folder",
+        "title": "Files",
+        "views": ["carbrix-files"],
+        "open": true,
+        "children": [
+          "files/mining.json",
+          "files/building.json",
+          "files/updates.json",
+          "files/owner.js",
+          "files/timelines.json"
         ]
       }
     ]

@@ -227,11 +227,16 @@ document.addEventListener('DOMContentLoaded', () => {
 </div>`;
     });
 
-    // 2) Shield normal Markdown code (so shortcodes don't break code examples)
+    // 2) Handle [CONTAINER]...[/CONTAINER] before shielding code
+    preProcessed = preProcessed.replace(/\[CONTAINER\]([\s\S]*?)\[\/CONTAINER\]/gim, (match, content) => {
+      return `\n<div class="container">${content}</div>\n`;
+    });
+
+    // 3) Shield normal Markdown code (so other shortcodes don't break code examples)
     const { text: shieldedText, blocks, inlines } = shieldCode(preProcessed);
     preProcessed = shieldedText;
 
-    // 3) Block shortcodes (non-code content)
+    // 4) Other Block shortcodes (non-code content)
     const blockReplacements = {
       'INFO': (content) =>
         `\n<div class="info-box"><i class="fas fa-info-circle"></i><div>${content}</div></div>\n`,
@@ -580,6 +585,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (headings.length === 0) {
       outlineSidebar.style.display = 'none';
       document.body.classList.remove('outline-sidebar-open');
+      updateSwipeIndicators();
       return;
     }
     outlineSidebar.style.display = 'block';
@@ -606,6 +612,19 @@ document.addEventListener('DOMContentLoaded', () => {
       listItem.appendChild(link);
       outlineList.appendChild(listItem);
     });
+
+    updateSwipeIndicators();
+  }
+
+  function updateSwipeIndicators() {
+    const isMobile = window.innerWidth <= 1024;
+    if (!isMobile) {
+      leftSwipeIndicator.style.display = 'none';
+      rightSwipeIndicator.style.display = 'none';
+      return;
+    }
+    leftSwipeIndicator.style.display = 'flex';
+    rightSwipeIndicator.style.display = outlineList.children.length > 0 ? 'flex' : 'none';
   }
 
   function updateActiveOutlineItem() {
@@ -984,12 +1003,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // Swipe gesture handling for mobile
   if (window.innerWidth <= 1024) {
     document.body.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
+      // Only detect swipes near the edges (within 50px of the screen edge)
+      const touchX = e.changedTouches[0].clientX;
+      const screenWidth = window.innerWidth;
+      
+      // Check if touch is near left edge (within 50px)
+      if (touchX <= 50) {
+        touchStartX = e.changedTouches[0].screenX;
+        document.body.setAttribute('data-swipe-edge', 'left');
+      } 
+      // Check if touch is near right edge (within 50px)
+      else if (touchX >= screenWidth - 50) {
+        touchStartX = e.changedTouches[0].screenX;
+        document.body.setAttribute('data-swipe-edge', 'right');
+      }
     }, false);
 
     document.body.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipeGesture();
+      // Only handle swipe if it started near an edge
+      const swipeEdge = document.body.getAttribute('data-swipe-edge');
+      if (swipeEdge) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipeGesture();
+        document.body.removeAttribute('data-swipe-edge');
+      }
     }, false);
   }
 
@@ -1042,6 +1079,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, false);
       }
     }
+    updateSwipeIndicators();
   });
 
   // Function to handle swipe gestures
@@ -1082,6 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       document.body.classList.remove('outline-sidebar-open'); // Always remove desktop outline class on mobile
     }
+    updateSwipeIndicators();
   });
 
   // Initial check for outline sidebar visibility on load and content changes
@@ -1093,6 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.remove('outline-sidebar-open');
       }
     }
+    updateSwipeIndicators();
   });
   observer.observe(outlineList, { childList: true }); // Observe changes to outlineList
 

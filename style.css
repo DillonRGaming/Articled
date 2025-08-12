@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap');
 :root {
---ui-border-radius: 6px;
+--ui-border-radius: 8px;
 --content-border-radius: 8px;
---sidebar-width: 280px;
+--sidebar-width: 270px;
 --background-color: #ffffff;
---text-color: #212529;
+--text-color: #000000;
 --secondary-text-color: #6c757d;
 --sidebar-bg: #f8f9fa;
 --sidebar-item-hover: #f1f1f1;
@@ -61,7 +61,7 @@ body.dark-theme {
 --sidebar-item-active-bg: #2a2a2a;
 --sidebar-item-active-text: #ffffff;
 --sidebar-nest-odd-bg: rgba(255, 255, 255, 0.05);
---accent-color: #E04F5F;
+--accent-color: #ffffff;
 --border-color: #282828;
 --input-bg: #1B1B1B;
 --input-text: #F0F0F0;
@@ -312,37 +312,68 @@ mark.highlight-purple { background-color: var(--highlight-purple-bg); color: var
 .carousel-dot { width: 10px; height: 10px; border-radius: 50%; background-color: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.2); cursor: pointer; padding: 0; }
 .carousel-dot.active { background-color: var(--accent-color); }
 
+/* Container component */
+.container {
+  border: 1px solid var(--border-color);
+  border-radius: var(--content-border-radius);
+  padding: 1.5em;
+  margin: 1.5em 0;
+  background-color: var(--code-bg);
+}
+
+.container > *:first-child { margin-top: 0; }
+.container > *:last-child { margin-bottom: 0; }
+
 /* Mobile Specific Styles - Swipe Indicators */
 .swipe-indicator {
   position: fixed;
   top: 50%;
-  width: 8px;
-  height: 60px;
-  background-color: rgba(224, 79, 95, 0.8);
-  border-radius: 0 12px 12px 0;
+  width: 36px;
+  height: 64px;
+  background-color: rgba(224, 79, 95, 0.15);
   cursor: pointer;
   z-index: 98;
   display: none;
   align-items: center;
   justify-content: center;
-  box-shadow: 1px 0 3px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
   transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+}
+
+.swipe-indicator::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
 }
 
 .swipe-indicator.left {
   left: 0;
   transform: translate(0, -50%);
-  border-radius: 0 12px 12px 0;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.swipe-indicator.left::after {
+  border-right: 10px solid var(--accent-color);
 }
 
 .swipe-indicator.right {
   right: 0;
   transform: translate(0, -50%);
-  border-radius: 12px 0 0 12px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.swipe-indicator.right::after {
+  border-left: 10px solid var(--accent-color);
 }
 
 .swipe-indicator:hover {
-  background-color: rgba(220, 53, 69, 0.9);
+  background-color: rgba(224, 79, 95, 0.25);
 }
 
 @media (max-width: 1024px) {
@@ -384,10 +415,10 @@ mark.highlight-purple { background-color: var(--highlight-purple-bg); color: var
     transform: translateX(0);
   }
   
-  /* Show swipe indicators on mobile */
+  /* Show swipe indicators on mobile and keep them visible when sidebars are open */
   .swipe-indicator { display: flex; }
-  body.sidebar-open .swipe-indicator.left { transform: translate(0, -90%); }
-  body.outline-sidebar-open-mobile .swipe-indicator.right { transform: translate(-50%, -90%); }
+  body.sidebar-open .swipe-indicator.left { transform: translateX(var(--sidebar-width)) translateY(-50%); }
+  body.outline-sidebar-open-mobile .swipe-indicator.right { transform: translateX(calc(-1 * 220px)) translateY(-50%); }
 
   /* Content area adjustments */
   .content-area { 
