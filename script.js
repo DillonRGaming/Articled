@@ -357,7 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
     preProcessed = preProcessed.replace(/\[HR\]/gi, `\n<hr class="styled-divider">\n`);
 
     // 4) Inline tokens
-    preProcessed = preProcessed.replace(/\(fa\)([\w-]+)\(\/fa\)/g, `<i class="fas fa-$1"></i>`);
+    console.log('Before (fa) replacement:', preProcessed);
+    preProcessed = preProcessed.replace(/\(fa\)([\w-]+)\(\)/g, `<i class="fas fa-$1"></i>`);
+    console.log('After (fa) replacement:', preProcessed);
     preProcessed = preProcessed.replace(/\(color=([#\w]+)\)(.*?)\(\/color\)/g, `<span style="color: $1">$2</span>`);
 
     // Highlight: support both (highlight=color) and (highlight-color)

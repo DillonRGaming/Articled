@@ -1,0 +1,7 @@
+{
+    "sidebarTitle": "Timeline",
+    "fullTitle": "Development Timeline",
+    "lastEdited": "2025-08-12",
+    "views": ["carbrix"],
+    "content": "[TIMELINE]\n[EVENT date=\"v3.6 (≈1.5 years ago)\" open]\nInteract indicator; new blocks (smooth, curve wedge, slab); randomized terrain map.\n[/EVENT]\n[EVENT date=\"v3.87 (≈1.3 years ago)\"]\nChallenge Mode (10 levels), credits on main menu, thruster velocity fixes.\n[/EVENT]\n[EVENT date=\"v3.92 (≈11 months ago)\"]\nNewest confirmed public update (see devlog for details).\n[/EVENT]\n[/TIMELINE]\n"
+  }

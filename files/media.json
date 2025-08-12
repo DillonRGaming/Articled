@@ -1,0 +1,7 @@
+{
+    "sidebarTitle": "Media",
+    "fullTitle": "Screenshots & Media",
+    "lastEdited": "2025-08-12",
+    "views": ["carbrix"],
+    "content": "## Gallery\n[GALLERY]\n![Hangar](assets/carbrix/screenshot-01.jpg)\n![Slope test](assets/carbrix/screenshot-02.jpg)\n![Thruster rig](assets/carbrix/screenshot-03.jpg)\n[/GALLERY]\n\n[INFO]\nMissing images will show placeholders until assets are added under /assets/carbrix/.\n[/INFO]\n"
+  }
